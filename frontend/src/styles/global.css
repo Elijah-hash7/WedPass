@@ -1,0 +1,41 @@
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Premium Typography with a Serif for titles and Sans-serif for body */
+:root {
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  
+  --color-primary: #1A4D3A; /* Rich Forest Green */
+  --color-secondary: #D4AF37; /* Champagne Gold */
+  --color-accent: #FFFDF5; /* Soft Off-White */
+  --color-background-warm: #F8F6F1; /* Creamy Background */
+}
+
+/* Base Body Styles */
+body {
+  background-color: var(--color-accent);
+  color: #2d3436;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Helper for the decorative line below titles */
+.title-underline::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background-color: var(--color-secondary);
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth-context";
 import { BottomNav } from "@/components/BottomNav";
 import { SplashScreen } from "@/components/SplashScreen";
 import { TopBar } from "@/components/TopBar";
@@ -14,7 +14,9 @@ function isPublicRoute(pathname: string) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useUser();
+  const { user, loading } = useAuth();
+  const isSignedIn = !!user;
+  const isLoaded = !loading;
   const [splashDone, setSplashDone] = useState(false);
 
   const publicRoute = isPublicRoute(pathname);

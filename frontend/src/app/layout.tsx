@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "@/lib/auth-context";
 import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
@@ -45,11 +45,11 @@ export default function RootLayout({
         "min-h-screen font-sans antialiased text-[var(--color-ink-strong)] bg-[var(--color-shell)]"
       )}>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <ClerkProvider>
+        <AuthProvider>
           <div className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-col relative bg-[var(--color-shell)] shadow-2xl overflow-x-hidden">
             <AppShell>{children}</AppShell>
           </div>
-        </ClerkProvider>
+        </AuthProvider>
       </body>
     </html>
   );

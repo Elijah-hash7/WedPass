@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useClerk, useAuth as useClerkAuth } from "@clerk/nextjs";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 export interface User {
   id: string;
@@ -10,36 +10,49 @@ export interface User {
   provider: "local" | "google";
 }
 
-export function useAuth() {
-  const { user: clerkUser, isLoaded } = useUser();
-  const { signOut } = useClerk();
-  const { getToken: clerkGetToken } = useClerkAuth();
-
-  const user: User | null = clerkUser
-    ? {
-        id: clerkUser.id,
-        name: clerkUser.fullName ?? clerkUser.firstName ?? "",
-        email: clerkUser.primaryEmailAddress?.emailAddress ?? "",
-        avatar: clerkUser.imageUrl,
-        provider: "local",
-      }
-    : null;
-
-  const logout = () => signOut({ redirectUrl: "/auth/login" });
-
-  const getToken = async () => clerkGetToken();
-
-  return {
-    user,
-    loading: !isLoaded,
-    logout,
-    getToken,
-  };
+interface AuthState {
+  user: User | null;
+  loading: boolean;
+  logout: () => void;
+  getToken: () => Promise<string | null>;
 }
 
-// Kept for backward-compat imports — no-op wrapper since ClerkProvider is in layout
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+const AuthContext = createContext<AuthState>({
+  user: null,
+  loading: true,
+  logout: () => {},
+  getToken: async () => null,
+});
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("wedpass_user");
+      if (stored) setUser(JSON.parse(stored));
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("wedpass_user");
+    localStorage.removeItem("wedpass_token");
+    setUser(null);
+  };
+
+  const getToken = async () => localStorage.getItem("wedpass_token");
+
+  return (
+    <AuthContext.Provider value={{ user, loading, logout, getToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
 }
 
 export const getApiErrorMessage = (error: unknown): string => {

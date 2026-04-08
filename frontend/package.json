@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.11",
     "axios": "^1.14.0",
     "framer-motion": "^12.38.0",
     "html-to-image": "^1.11.13",

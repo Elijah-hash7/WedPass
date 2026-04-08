@@ -66,16 +66,14 @@ export type MetricsResponse = {
 export type AuthUser = { id: string; name: string; email: string; avatar?: string; provider: string };
 export type AuthResponse = { user: AuthUser; accessToken: string };
 
-// Interceptor to add Clerk token
+// Interceptor to add JWT token
 apiClient.interceptors.request.use(async (config) => {
   try {
-    // Clerk stores the session token in __clerk_db_jwt or via the Clerk JS SDK.
-    // We read it from the cookie that Clerk sets for SSR-compatible access.
-    const match = document.cookie.match(/(?:^|;\s*)__session=([^;]+)/);
-    if (match) {
-      config.headers.Authorization = `Bearer ${match[1]}`;
+    const token = localStorage.getItem("wedpass_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  } catch (e) {
+  } catch {
     // Ignore — unauthenticated requests will simply lack the header
   }
   return config;

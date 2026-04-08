@@ -340,3 +340,7 @@ a {
     padding: calc(var(--space-8) * 1.5) var(--space-4) calc(var(--space-8) * 2);
   }
 }
+
+#clerk-dev-browser-warning {
+  display: none !important;
+}

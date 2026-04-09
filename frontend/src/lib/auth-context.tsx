@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 
 export interface User {
   id: string;
@@ -38,17 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = (user: User, token: string) => {
+  const login = useCallback((user: User, token: string) => {
     localStorage.setItem("wedpass_token", token);
     localStorage.setItem("wedpass_user", JSON.stringify(user));
     setUser(user);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("wedpass_user");
     localStorage.removeItem("wedpass_token");
     setUser(null);
-  };
+  }, []);
 
   const getToken = async () => localStorage.getItem("wedpass_token");
 

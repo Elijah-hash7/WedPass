@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
@@ -8,8 +8,12 @@ export default function AuthCallbackPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [status, setStatus] = useState<"signing-in" | "creating">("signing-in");
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     const id = params.get("id");
@@ -32,13 +36,13 @@ export default function AuthCallbackPage() {
       provider: "google" as const,
     };
 
+    login(user, token);
+
     if (isNew) {
       setStatus("creating");
-      // Show "creating account" briefly then navigate
-      login(user, token);
-      setTimeout(() => router.replace("/host"), 1500);
+      const t = setTimeout(() => router.replace("/host"), 1500);
+      return () => clearTimeout(t);
     } else {
-      login(user, token);
       router.replace("/host");
     }
   }, [router, login]);

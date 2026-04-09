@@ -40,10 +40,10 @@ export default function AuthCallbackPage() {
 
     if (isNew) {
       setStatus("creating");
-      const t = setTimeout(() => router.replace("/host"), 1500);
+      const t = setTimeout(() => router.replace("/"), 1500);
       return () => clearTimeout(t);
     } else {
-      router.replace("/host");
+      router.replace("/");
     }
   }, [router, login]);
 

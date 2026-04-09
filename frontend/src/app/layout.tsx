@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { AuthProvider } from "@/lib/auth-context";
 import { AppShell } from "@/components/AppShell";
 import "./globals.css";
@@ -50,6 +51,7 @@ export default function RootLayout({
             <AppShell>{children}</AppShell>
           </div>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

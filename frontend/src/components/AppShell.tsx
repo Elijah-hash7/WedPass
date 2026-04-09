@@ -38,6 +38,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [isLoaded, isSignedIn, pathname, router, shouldGateRoute, splashDone]);
 
   if (!splashDone) {
+    // Auth callback must render immediately to process the token — don't block it with splash
+    if (pathname === "/auth/callback") {
+      return <>{children}</>;
+    }
     return <SplashScreen onDone={() => setSplashDone(true)} />;
   }
 

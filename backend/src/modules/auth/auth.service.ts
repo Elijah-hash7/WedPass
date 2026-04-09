@@ -149,6 +149,8 @@ export class AuthService {
       $or: [{ googleId: googleUser.googleId }, { email: googleUser.email.toLowerCase() }],
     });
 
+    let isNew = false;
+
     if (user) {
       // Update existing user if needed
       user.googleId = googleUser.googleId;
@@ -157,6 +159,7 @@ export class AuthService {
       user.isVerified = true; // Google users are pre-verified
       await user.save();
     } else {
+      isNew = true;
       user = await this.userModel.create({
         name: googleUser.name,
         email: googleUser.email.toLowerCase(),
@@ -170,6 +173,7 @@ export class AuthService {
     const payload = { sub: (user._id as any).toString(), email: user.email };
 
     return {
+      isNew,
       user: {
         id: payload.sub,
         name: user.name,

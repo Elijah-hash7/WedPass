@@ -13,6 +13,7 @@ export interface User {
 interface AuthState {
   user: User | null;
   loading: boolean;
+  login: (user: User, token: string) => void;
   logout: () => void;
   getToken: () => Promise<string | null>;
 }
@@ -20,6 +21,7 @@ interface AuthState {
 const AuthContext = createContext<AuthState>({
   user: null,
   loading: true,
+  login: () => {},
   logout: () => {},
   getToken: async () => null,
 });
@@ -36,6 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
+  const login = (user: User, token: string) => {
+    localStorage.setItem("wedpass_token", token);
+    localStorage.setItem("wedpass_user", JSON.stringify(user));
+    setUser(user);
+  };
+
   const logout = () => {
     localStorage.removeItem("wedpass_user");
     localStorage.removeItem("wedpass_token");
@@ -45,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const getToken = async () => localStorage.getItem("wedpass_token");
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout, getToken }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, getToken }}>
       {children}
     </AuthContext.Provider>
   );

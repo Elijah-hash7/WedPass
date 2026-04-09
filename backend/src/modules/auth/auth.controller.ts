@@ -55,7 +55,7 @@ export class AuthController {
       );
     }
 
-    const { user, accessToken } = req.user;
+    const { user, accessToken, isNew } = req.user;
 
     const params = new URLSearchParams({
       id: user.id,
@@ -63,6 +63,7 @@ export class AuthController {
       email: user.email,
       avatar: user.avatar || '',
       token: accessToken,
+      ...(isNew ? { new: '1' } : {}),
     });
 
     return res.redirect(

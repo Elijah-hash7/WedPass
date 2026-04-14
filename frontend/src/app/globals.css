@@ -105,7 +105,6 @@ body {
     radial-gradient(ellipse at 15% 0%, rgba(194,155,67,0.06), transparent 50%),
     radial-gradient(ellipse at 85% 100%, rgba(0,0,0,0.03), transparent 50%),
     linear-gradient(170deg, #ffffff 0%, #f4f4f5 100%);
-  background-attachment: fixed;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -187,14 +186,15 @@ a {
 
 .card-surface {
   background: color-mix(in srgb, var(--color-ivory) 75%, transparent);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
   border: 1px solid var(--color-line-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card), var(--shadow-inset);
   position: relative;
   overflow: hidden;
-  transition: all 400ms var(--ease-spring);
+  transition: box-shadow 400ms var(--ease-spring), transform 400ms var(--ease-spring), border-color 400ms var(--ease-spring);
+  will-change: transform;
 }
 
 .theme-dark .card-surface {
@@ -332,7 +332,7 @@ a {
 }
 
 .has-bottom-nav {
-  padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (max-width: 640px) {

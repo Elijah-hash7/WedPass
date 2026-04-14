@@ -29,12 +29,12 @@ export default function LandingPage() {
   const firstName = user.name.split(" ")[0];
 
   return (
-    <main className="page-shell has-bottom-nav pt-28 sm:pt-32">
+    <main className="page-shell has-bottom-nav pt-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-6"
+        className="space-y-4"
       >
         {/* Soft atmospheric background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-64 bg-gradient-to-b from-[var(--color-primary-glow)] to-transparent pointer-events-none opacity-50 blur-3xl" />
@@ -42,7 +42,7 @@ export default function LandingPage() {
         {/* Hero Card */}
         <motion.section
           variants={itemVariants}
-          className="relative overflow-hidden rounded-[24px] border border-[var(--color-line-soft)] px-7 pb-8 pt-10 text-[var(--color-ivory)] shadow-[0_24px_54px_-20px_rgba(0,0,0,0.4)]"
+          className="relative overflow-hidden rounded-[24px] border border-[var(--color-line-soft)] px-6 pb-5 pt-7 text-[var(--color-ivory)] shadow-[0_24px_54px_-20px_rgba(0,0,0,0.4)]"
           style={{
             background: "linear-gradient(135deg, #09090b 0%, #18181b 100%)"
           }}
@@ -61,7 +61,7 @@ export default function LandingPage() {
               Horizon OS
             </motion.p>
             <div className="space-y-3">
-              <h1 className="max-w-[15ch] text-[2.25rem] leading-[1.1] font-semibold text-white tracking-tight">
+              <h1 className="max-w-[15ch] text-[1.9rem] leading-[1.1] font-semibold text-white tracking-tight">
                 Hello, {firstName}. <br />
                 Your events await.
               </h1>
@@ -71,7 +71,7 @@ export default function LandingPage() {
             </div>
 
             {/* Decorative stat row */}
-            <div className="mt-8 flex items-center gap-6 border-t border-white/10 pt-5">
+            <div className="mt-4 flex items-center gap-6 border-t border-white/10 pt-4">
               <div className="space-y-1 pl-1">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Role</p>
                 <p className="text-[13px] font-semibold text-white/90">Host</p>
@@ -89,7 +89,7 @@ export default function LandingPage() {
         </motion.section>
 
         {/* Action cards - Section */}
-        <motion.div variants={itemVariants} className="space-y-4 pt-2">
+        <motion.div variants={itemVariants} className="space-y-3">
           <p className="px-1 text-[11px] font-bold uppercase tracking-[0.24em] text-[var(--color-ink-muted)]">
             Quick Actions
           </p>

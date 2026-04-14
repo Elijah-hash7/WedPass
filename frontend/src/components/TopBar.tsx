@@ -53,7 +53,7 @@ export function TopBar() {
         </span>
       </div>
 
-      {pathname.startsWith("/host") && (
+      {(pathname === "/" || pathname.startsWith("/host") || pathname.startsWith("/settings")) && (
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[var(--color-gold)] bg-gradient-to-br from-[#f9e8c8] to-[#e8c882] shadow-md">
           {!imgFailed ? (
             // eslint-disable-next-line @next/next/no-img-element

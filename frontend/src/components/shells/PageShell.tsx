@@ -19,7 +19,7 @@ export function PageShell({
   className,
 }: PageShellProps) {
   return (
-    <div className="relative min-h-screen pb-16 overflow-x-hidden">
+    <div className="relative min-h-[100dvh] overflow-x-hidden">
       {/* Decorative blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -left-16 top-20 h-56 w-56 rounded-full bg-[var(--color-gold-glow)] opacity-60 blur-3xl" />

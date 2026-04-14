@@ -29,7 +29,7 @@ export default function LandingPage() {
   const firstName = user.name.split(" ")[0];
 
   return (
-    <main className="page-shell has-bottom-nav pt-4">
+    <main className="page-shell has-bottom-nav">
       <motion.div
         variants={containerVariants}
         initial="hidden"

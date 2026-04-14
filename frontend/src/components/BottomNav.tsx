@@ -20,7 +20,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2">
-      <div className="glass-panel px-6 py-3">
+      <div className="glass-panel px-6 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-around relative">
           {navItems.map((item) => {
             const active =

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { AuthProvider } from "@/lib/auth-context";
@@ -25,6 +25,12 @@ export const metadata: Metadata = {
   description: "Premium ceremony verification and guest management system. Create events, share invite links, and manage guest check-ins with live dashboards.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 const themeInitScript = `
   (() => {
     try {
@@ -43,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${cormorant.variable} ${jost.variable}`}>
       <body className={cn(
-        "min-h-screen font-sans antialiased text-[var(--color-ink-strong)] bg-[var(--color-shell)]"
+        "min-h-[100dvh] font-sans antialiased text-[var(--color-ink-strong)] bg-[var(--color-shell)]"
       )}>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <AuthProvider>

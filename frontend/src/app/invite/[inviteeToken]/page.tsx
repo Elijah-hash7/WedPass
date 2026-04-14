@@ -137,7 +137,7 @@ export default function InviteTokenPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-[var(--color-shell)] text-[var(--color-ink-strong)] flex flex-col items-center px-4 pt-12 pb-32 sm:pt-24">
+    <main className="relative min-h-[100dvh] w-full bg-[var(--color-shell)] text-[var(--color-ink-strong)] flex flex-col items-center px-4 pt-12 pb-32 sm:pt-24">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[var(--color-ivory)] via-[var(--color-shell)] to-[rgba(239,219,172,0.2)]" />
       <div className="absolute top-0 left-1/2 -ml-[400px] -z-10 h-[800px] w-[800px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(194,155,67,0.12),transparent_70%)] blur-3xl pointer-events-none" />
       <div className="w-full max-w-[800px] mx-auto z-10">

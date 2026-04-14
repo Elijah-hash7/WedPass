@@ -105,7 +105,7 @@ body {
     radial-gradient(ellipse at 15% 0%, rgba(194,155,67,0.06), transparent 50%),
     radial-gradient(ellipse at 85% 100%, rgba(0,0,0,0.03), transparent 50%),
     linear-gradient(170deg, #ffffff 0%, #f4f4f5 100%);
-  min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background 300ms ease, color 300ms ease;
@@ -180,7 +180,7 @@ a {
 
 .page-shell {
   position: relative;
-  padding: calc(var(--space-8) * 2) var(--space-6) calc(var(--space-8) * 2);
+  padding: var(--space-8) var(--space-6);
   margin: 0 auto;
 }
 
@@ -332,12 +332,12 @@ a {
 }
 
 .has-bottom-nav {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (max-width: 640px) {
   .page-shell {
-    padding: calc(var(--space-8) * 1.5) var(--space-4) calc(var(--space-8) * 2);
+    padding: var(--space-6) var(--space-4);
   }
 }
 

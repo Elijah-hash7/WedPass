@@ -3,21 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { generateToken } from '../../common/utils/code-generator';
-import { Invitee, InviteeDocument } from '../invitees/schemas/invitee.schema';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { Event, EventDocument } from './schemas/event.schema';
+import { PrismaService } from '../../common/services/prisma.service';
 
 @Injectable()
 export class EventsService {
-  constructor(
-    @InjectModel(Event.name) private readonly eventModel: Model<EventDocument>,
-    @InjectModel(Invitee.name)
-    private readonly inviteeModel: Model<InviteeDocument>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createEvent(createEventDto: CreateEventDto, ownerId: string) {
     const { name, date, guestLimit, venue } = createEventDto;
@@ -34,21 +27,23 @@ export class EventsService {
       throw new BadRequestException('Guest limit must be at least 1');
     }
 
-    const event = await this.eventModel.create({
-      name: name.trim(),
-      date: new Date(date),
-      guestLimit,
-      venue: venue?.trim() || '',
-      checkInEnabled: false,
-      inviteeToken: generateToken(),
-      usherToken: generateToken(),
-      owner: ownerId as any,
+    const event = await this.prisma.event.create({
+      data: {
+        name: name.trim(),
+        date: new Date(date),
+        guestLimit,
+        venue: venue?.trim() || '',
+        checkInEnabled: false,
+        inviteeToken: generateToken(),
+        usherToken: generateToken(),
+        ownerId,
+      },
     });
     return this.toEventResponse(event, 'Event created successfully');
   }
 
   async findByInviteeToken(inviteeToken: string) {
-    const event = await this.eventModel.findOne({ inviteeToken });
+    const event = await this.prisma.event.findUnique({ where: { inviteeToken } });
 
     if (!event) {
       throw new NotFoundException('Invite link is invalid');
@@ -58,7 +53,7 @@ export class EventsService {
   }
 
   async findByUsherToken(usherToken: string) {
-    const event = await this.eventModel.findOne({ usherToken });
+    const event = await this.prisma.event.findUnique({ where: { usherToken } });
 
     if (!event) {
       throw new NotFoundException('Usher link is invalid');
@@ -68,12 +63,12 @@ export class EventsService {
   }
 
   async findById(eventId: string, ownerId?: string) {
-    const filter: any = { _id: eventId };
+    const filter: any = { id: eventId };
     if (ownerId) {
-      filter.owner = ownerId;
+      filter.ownerId = ownerId;
     }
-    
-    const event = await this.eventModel.findOne(filter);
+
+    const event = await this.prisma.event.findFirst({ where: filter });
 
     if (!event) {
       throw new NotFoundException('Event not found or access denied');
@@ -86,18 +81,20 @@ export class EventsService {
     const event = await this.findById(eventId, ownerId);
     const { name, date, guestLimit, venue, checkInEnabled } = updateEventDto;
 
+    const updateData: any = {};
+
     if (name !== undefined) {
       if (!name.trim()) {
         throw new BadRequestException('Event name is required');
       }
-      event.name = name.trim();
+      updateData.name = name.trim();
     }
 
     if (date !== undefined) {
       if (!date || Number.isNaN(new Date(date).getTime())) {
         throw new BadRequestException('Event date must be a valid date');
       }
-      event.date = new Date(date);
+      updateData.date = new Date(date);
     }
 
     if (guestLimit !== undefined) {
@@ -105,32 +102,35 @@ export class EventsService {
         throw new BadRequestException('Guest limit must be at least 1');
       }
 
-      const inviteeCount = await this.inviteeModel.countDocuments({ eventId: event._id });
+      const inviteeCount = await this.prisma.invitee.count({ where: { eventId: event.id } });
       if (guestLimit < inviteeCount) {
         throw new BadRequestException(
           `Guest limit cannot be lower than current registrations (${inviteeCount})`,
         );
       }
 
-      event.guestLimit = guestLimit;
+      updateData.guestLimit = guestLimit;
     }
 
     if (venue !== undefined) {
-      event.venue = venue.trim();
+      updateData.venue = venue.trim();
     }
 
     if (checkInEnabled !== undefined) {
-      event.checkInEnabled = Boolean(checkInEnabled);
+      updateData.checkInEnabled = Boolean(checkInEnabled);
     }
 
-    await event.save();
-    return this.toEventResponse(event, 'Event updated successfully');
+    const updatedEvent = await this.prisma.event.update({
+      where: { id: event.id },
+      data: updateData,
+    });
+
+    return this.toEventResponse(updatedEvent, 'Event updated successfully');
   }
 
   async deleteEvent(eventId: string, ownerId: string) {
     const event = await this.findById(eventId, ownerId);
-    await this.inviteeModel.deleteMany({ eventId: event._id });
-    await event.deleteOne();
+    await this.prisma.event.delete({ where: { id: event.id } });
 
     return {
       message: 'Event deleted successfully',
@@ -138,7 +138,7 @@ export class EventsService {
     };
   }
 
-  toEventResponse(event: EventDocument, message?: string) {
+  toEventResponse(event: any, message?: string) {
     const frontendBaseUrl = process.env.FRONTEND_BASE_URL;
 
     return {
@@ -156,11 +156,11 @@ export class EventsService {
 
   async getMetrics(eventId: string, ownerId: string) {
     const event = await this.findById(eventId, ownerId);
-    const totalInvitees = await this.inviteeModel.countDocuments({ eventId: event._id });
-    const checkedInCount = await this.inviteeModel.countDocuments({ eventId: event._id, checkedIn: true });
+    const totalInvitees = await this.prisma.invitee.count({ where: { eventId: event.id } });
+    const checkedInCount = await this.prisma.invitee.count({ where: { eventId: event.id, checkedIn: true } });
 
     return {
-      eventId: String(event._id),
+      eventId: String(event.id),
       guestLimit: event.guestLimit,
       totalInvitees,
       checkedInCount,

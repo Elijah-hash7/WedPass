@@ -1,9 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InviteesService } from '../invitees/invitees.service';
+import { PrismaService } from '../../common/services/prisma.service';
 
 @Injectable()
 export class CheckInService {
-  constructor(private readonly inviteesService: InviteesService) {}
+  constructor(
+    private readonly inviteesService: InviteesService,
+    private prisma: PrismaService,
+  ) {}
 
   async checkIn(accessCode: string, eventId: string) {
     if (!accessCode?.trim()) {
@@ -34,9 +38,13 @@ export class CheckInService {
       };
     }
 
-    invitee.checkedIn = true;
-    invitee.checkedInAt = new Date();
-    await invitee.save();
+    await this.prisma.invitee.update({
+      where: { id: invitee.id },
+      data: {
+        checkedIn: true,
+        checkedInAt: new Date(),
+      },
+    });
 
     return {
       status: 'valid',

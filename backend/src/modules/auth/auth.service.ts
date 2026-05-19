@@ -5,11 +5,9 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { User, UserDocument } from './schemas/user.schema';
+import { PrismaService } from '../../common/services/prisma.service';
 import { EmailService } from './email.service';
 
 function generateOtp(): string {
@@ -19,13 +17,13 @@ function generateOtp(): string {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private prisma: PrismaService,
     private emailService: EmailService,
     private jwtService: JwtService,
   ) {}
 
   async register(name: string, email: string, password: string) {
-    const existing = await this.userModel.findOne({ email: email.toLowerCase() });
+    const existing = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
 
     if (existing?.isVerified) {
       throw new ConflictException(
@@ -39,18 +37,24 @@ export class AuthService {
 
     if (existing) {
       // Resend OTP to unverified account
-      existing.passwordHash = passwordHash;
-      existing.name = name;
-      existing.verificationOtp = otp;
-      existing.otpExpiresAt = otpExpiresAt;
-      await existing.save();
+      await this.prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          passwordHash,
+          name,
+          verificationOtp: otp,
+          otpExpiresAt,
+        },
+      });
     } else {
-      await this.userModel.create({
-        name,
-        email: email.toLowerCase(),
-        passwordHash,
-        verificationOtp: otp,
-        otpExpiresAt,
+      await this.prisma.user.create({
+        data: {
+          name,
+          email: email.toLowerCase(),
+          passwordHash,
+          verificationOtp: otp,
+          otpExpiresAt,
+        },
       });
     }
 
@@ -59,7 +63,7 @@ export class AuthService {
   }
 
   async verifyEmail(email: string, otp: string) {
-    const user = await this.userModel.findOne({ email: email.toLowerCase() });
+    const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
 
     if (!user) {
       throw new NotFoundException('No account found for this email.');
@@ -76,27 +80,31 @@ export class AuthService {
       );
     }
 
-    user.isVerified = true;
-    user.verificationOtp = null;
-    user.otpExpiresAt = null;
-    await user.save();
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        verificationOtp: null,
+        otpExpiresAt: null,
+      },
+    });
 
-    const payload = { sub: (user._id as any).toString(), email: user.email };
+    const payload = { sub: updatedUser.id, email: updatedUser.email };
 
     return {
       user: {
         id: payload.sub,
-        name: user.name,
-        email: user.email,
-        provider: user.provider,
-        avatar: user.avatar,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        provider: updatedUser.provider,
+        avatar: updatedUser.avatar,
       },
       accessToken: this.jwtService.sign(payload),
     };
   }
 
   async login(email: string, password: string) {
-    const user = await this.userModel.findOne({ email: email.toLowerCase() });
+    const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
 
     if (!user) {
       throw new NotFoundException(
@@ -125,7 +133,7 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect password. Please try again.');
     }
 
-    const payload = { sub: (user._id as any).toString(), email: user.email };
+    const payload = { sub: user.id, email: user.email };
 
     return {
       user: {
@@ -145,32 +153,42 @@ export class AuthService {
     name: string;
     avatar: string;
   }) {
-    let user = await this.userModel.findOne({
-      $or: [{ googleId: googleUser.googleId }, { email: googleUser.email.toLowerCase() }],
+    let user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { googleId: googleUser.googleId },
+          { email: googleUser.email.toLowerCase() },
+        ],
+      },
     });
 
     let isNew = false;
 
     if (user) {
-      // Update existing user if needed
-      user.googleId = googleUser.googleId;
-      user.avatar = googleUser.avatar;
-      user.provider = 'google';
-      user.isVerified = true; // Google users are pre-verified
-      await user.save();
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          googleId: googleUser.googleId,
+          avatar: googleUser.avatar,
+          provider: 'google',
+          isVerified: true,
+        },
+      });
     } else {
       isNew = true;
-      user = await this.userModel.create({
-        name: googleUser.name,
-        email: googleUser.email.toLowerCase(),
-        googleId: googleUser.googleId,
-        avatar: googleUser.avatar,
-        provider: 'google',
-        isVerified: true,
+      user = await this.prisma.user.create({
+        data: {
+          name: googleUser.name,
+          email: googleUser.email.toLowerCase(),
+          googleId: googleUser.googleId,
+          avatar: googleUser.avatar,
+          provider: 'google',
+          isVerified: true,
+        },
       });
     }
 
-    const payload = { sub: (user._id as any).toString(), email: user.email };
+    const payload = { sub: user.id, email: user.email };
 
     return {
       isNew,
@@ -184,6 +202,4 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
     };
   }
-
-
 }

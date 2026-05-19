@@ -9,4 +9,12 @@ export class AppController {
       docsHint: 'Use /events, /invitees, /check-in, and /metrics routes',
     };
   }
+
+  @Get('health')
+  getHealth() {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    };
+  }
 }
